@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import UserInfo
+from .models import UserInfo,UserAddress
 from django.http import HttpResponse,HttpResponseRedirect
 from hashlib import sha1
 import json
@@ -89,10 +89,47 @@ def login(request):
 
 
 def user_center_info(request):
-    context={}
+
     u_session = request.session.get('u_name')
     u_id = request.session.get('u_id')
     if u_session != "":
-        context = {'u_name': u_session, 'u_id': u_id}
-    print('u_session'+u_session+':::'+str(u_id))
+        print('u_session'+u_session+':::'+str(u_id))
+        user = UserInfo.objects.get(id=u_id)
+        context = {'user': user}
+        print(user.u_name+':'+user.u_pwd+':'+user.u_email)
     return render(request, 'df_user/user_center_info.html', context)
+
+
+def user_center_order(request):
+    return render(request, 'df_user/user_center_order.html')
+
+
+def user_center_site(request):
+    u_session = request.session.get('u_name')
+    u_id = request.session.get('u_id')
+    if u_session != "":
+        userAddress = UserAddress.objects.get(u_user_id=u_id)
+        context = {'user': userAddress}
+    return render(request, 'df_user/user_center_site.html', context)
+
+
+def user_center_site_handle(request):
+    u_session = request.session.get('u_name')
+    u_id = request.session.get('u_id')
+    if u_session != "":
+        userAddress = UserAddress.objects.get(u_user_id=u_id)
+        userAddress.u_receive_name = request.POST.get('u_receive_name')
+        userAddress.u_receive_address = request.POST.get('u_receive_address')
+        userAddress.u_receive_number = request.POST.get('u_receive_number')
+        userAddress.u_receive_phone = request.POST.get('u_receive_phone')
+        userAddress.save()
+    return redirect('/user/user_center_info/')
+
+
+
+
+
+
+
+
+
